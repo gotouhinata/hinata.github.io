@@ -145,6 +145,10 @@ class TitleScene extends Phaser.Scene {
 class OneScene extends Phaser.Scene {
     constructor() {
         super({ key: 'OneScene' });
+        this.UpButton = null;
+        this.LeftButton = null;
+        this.DownButton = null;
+        this.RightButton = null;
     }
 
 preload ()
@@ -265,10 +269,49 @@ preload ()
     platforms.create(600, 400, 'ground');
     /*初期位置の足場*/platforms.create(400, 598, 'ground').setScale(2).refreshBody(); 
     
-    const UpButton = this.add.image(750, 430, 'ue').setInteractive().setScale(1.5);
-    const LeftButton = this.add.image(50, 430, 'hidari').setInteractive().setScale(1.5);
-    const DownButton = this.add.image(50, 530, 'sita').setInteractive().setScale(1.5);
-    const RightButton = this.add.image(750, 530, 'migi').setInteractive().setScale(1.5);
+    this.moveLeft = false;
+        this.moveRight = false;
+        this.jump = false;
+        this.moveDown = false;
+
+        // ボタンの作成（スマートフォン向け）
+        this.UpButton = this.add.image(750, 430, 'ue').setInteractive().setScale(1.5);
+        this.LeftButton = this.add.image(50, 430, 'hidari').setInteractive().setScale(1.5);
+        this.DownButton = this.add.image(50, 530, 'sita').setInteractive().setScale(1.5);
+        this.RightButton = this.add.image(750, 530, 'migi').setInteractive().setScale(1.5);
+
+        // タッチイベントの設定
+        this.UpButton.on('pointerdown', () => {
+            this.jump = true;
+        });
+
+        this.UpButton.on('pointerup', () => {
+            this.jump = false;
+        });
+
+        this.LeftButton.on('pointerdown', () => {
+            this.moveLeft = true;
+        });
+
+        this.LeftButton.on('pointerup', () => {
+            this.moveLeft = false;
+        });
+
+        this.DownButton.on('pointerdown', () => {
+            this.moveDown = true;
+        });
+
+        this.DownButton.on('pointerup', () => {
+            this.moveDown = false;
+        });
+
+        this.RightButton.on('pointerdown', () => {
+            this.moveRight = true;
+        });
+
+        this.RightButton.on('pointerup', () => {
+            this.moveRight = false;
+        });
 
     
 
@@ -390,19 +433,19 @@ preload ()
 
     this.updateTimer()
 
-    UpButton.on('pointerdown', () => {
+    this.UpButton.on('pointerdown', () => {
             this.jumpAction();
         });
 
-        LeftButton.on('pointerdown', () => {
+        this.LeftButton.on('pointerdown', () => {
             this.moveLeftAction();
         });
 
-        DownButton.on('pointerdown', () => {
+        this.DownButton.on('pointerdown', () => {
             this.moveDownAction();
         });
 
-        RightButton.on('pointerdown', () => {
+        this. RightButton.on('pointerdown', () => {
             this.moveRightAction();
         });
 
@@ -418,10 +461,21 @@ preload ()
   }, 10);
 }
 
+updateButtonPosition() {
+    
+    let playerInitialY = this.cameras.main.worldView.y + 500;
+    let buttonInitialY = 430;
+    this.UpButton.setPosition(this.UpButton.x, player.y - (playerInitialY - buttonInitialY));
+    this.LeftButton.setPosition(this.LeftButton.x, player.y - (playerInitialY - buttonInitialY));
+    this.DownButton.setPosition(this.DownButton.x, player.y + 100 - (playerInitialY - buttonInitialY));
+    this.RightButton.setPosition(this.RightButton.x, player.y + 100 - (playerInitialY - buttonInitialY));
+}
+
  update ()
 {
+    
     if(!goalflg){        
-
+        this.updateButtonPosition()
         if ((cursors.left.isDown || this.moveLeft) && !this.moveRight) {
             this.moveLeftAction();
         } else if ((cursors.right.isDown || this.moveRight) && !this.moveLeft) {
@@ -458,13 +512,14 @@ preload ()
         //player.setVelocityY(-300);
     }
     
-    }else{
+    }
+    else{
         tensi.anims.play('tensi_goal',true);
         player.anims.play('turn',true);
         
     }
     
-    
+   
     
     
 }
